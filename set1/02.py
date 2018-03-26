@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+from cryptopals import HexXOR
+
+IN1 = "1c0111001f010100061a024b53535009181c"
+IN2 = "686974207468652062756c6c277320657965"
+OUT = "746865206b696420646f6e277420706c6179"
+
+if HexXOR(IN1, IN2) == OUT:
+    print("PASS")
+else:
+    print("FAIL")
