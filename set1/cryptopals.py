@@ -11,7 +11,10 @@ def HexToAscii(s):
         Returns:
             Ascii string
     """
-    return bytearray.fromhex(s).decode()
+    try:
+        return bytearray.fromhex(s).decode()
+    except:
+        return ""
 
 
 def HexToBase64(s):
@@ -44,3 +47,25 @@ def HexXOR(s1, s2):
     xor = int(s1, 16) ^ int(s2, 16)
 
     return format(xor, 'x')
+
+
+def IsPlaintext(text, factor=0.95):
+    """Check if text contains 'mostly' alpharithmetics
+
+        Args:
+            text     (str): Ascii string to check
+            factor (float): Percentage of alphas in text in order qualify
+                            as plaintext
+
+        Returns:
+            true, if number of alphas is above given percentage
+            false, otherwise
+    """
+    text = text.strip().replace(' ', '')
+
+    counter = 0
+    for c in text:
+        if c.isalpha():
+            counter += 1
+
+    return counter > factor * len(text)

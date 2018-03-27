@@ -2,22 +2,16 @@
 
 from cryptopals import HexXOR
 from cryptopals import HexToAscii
+from cryptopals import IsPlaintext
 
 DICTIONARY = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-def NumOfLetters(s):
-    chrs = 0
-    for c in s:
-        if c.isalpha():
-            chrs += 1
+SECRET = ""
+DONE = False
 
-    return chrs
+FILE = open("04.txt")
 
-secret = ""
-
-txt = open("04.txt")
-
-for IN1 in txt:
+for IN1 in FILE:
     IN1 = IN1.strip()
 
     for c in DICTIONARY:
@@ -25,16 +19,16 @@ for IN1 in txt:
         IN2 = IN2[:len(IN1)]
 
         OUT = HexXOR(IN1, IN2)
+        OUT = HexToAscii(OUT)
 
-        try:
-            plaintext = HexToAscii(OUT)
-        except:
+        if IsPlaintext(OUT):
+            SECRET = OUT.strip()
+            DONE = True
             break
-        else:
-            plaintext = plaintext.strip()
-            num = NumOfLetters(plaintext.replace(' ', ''))
-            if num > 0.95 * len(plaintext.replace(' ', '')):
-                secret = plaintext.strip(' ')
 
-txt.close()
-print(secret)
+    if DONE:
+        break
+
+FILE.close()
+
+print(SECRET)
