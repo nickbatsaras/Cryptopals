@@ -2,6 +2,18 @@ from binascii import unhexlify
 from base64 import b64encode
 
 
+def HexToAscii(s):
+    """Convert hex string to ascii string
+
+        Args:
+            s (str): Hex string to convert
+
+        Returns:
+            Ascii string
+    """
+    return bytearray.fromhex(s).decode()
+
+
 def HexToBase64(s):
     """Convert hex string to base64 string
 
