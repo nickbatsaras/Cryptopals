@@ -42,8 +42,6 @@ def HexXOR(s1, s2):
         Returns:
             Hex string, result of 's1 XOR s2'
     """
-    assert(len(s1) == len(s2))
-
     xor = int(s1, 16) ^ int(s2, 16)
 
     return format(xor, 'x')
@@ -69,3 +67,34 @@ def IsPlaintext(text, factor=0.95):
             counter += 1
 
     return counter > factor * len(text)
+
+
+def RepeatingXOR(plaintext, key):
+    """XOR each byte of plaintext with a single byte of key
+        When XOR'd with the last byte of key, reset key index
+
+        Args:
+            plaintext (str): Text to encrypt
+            key       (str): Key used for encryption
+
+        Returns:
+            Hex string, the ciphered plaintext
+    """
+    index = 0
+    digest = ""
+    for c in plaintext:
+        hexchar1 = format(ord(c), 'x')
+        hexchar2 = format(ord(key[index]), 'x')
+
+        xor = HexXOR(hexchar1, hexchar2)
+
+        if len(xor) == 1:
+            digest += '0' + xor
+        else:
+            digest += xor
+
+        index += 1
+        if index == len(key):
+            index = 0
+
+    return digest
