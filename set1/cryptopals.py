@@ -1,7 +1,5 @@
-from binascii import unhexlify
-from binascii import hexlify
-from base64 import b64encode
-from base64 import b64decode
+from binascii import unhexlify, hexlify
+from base64   import b64encode, b64decode
 
 
 def HexToAscii(s):
@@ -28,10 +26,19 @@ def HexToBase64(s):
         Returns:
             Base64 string
     """
-    raw = unhexlify(s)
-    b64_raw = b64encode(raw)
+    return b64encode(unhexlify(s)).decode("ascii")
 
-    return b64_raw.decode('ascii')
+
+def Base64ToHex(s):
+    """Convert base64 string to hex string
+
+        Args:
+            s (str): Base64 string to convert
+
+        Returns:
+            Hex string
+    """
+    return hexlify(b64decode(s)).decode("ascii")
 
 
 def HexXOR(s1, s2):
@@ -68,7 +75,7 @@ def IsPlaintext(text, factor=0.95):
         if c.isalpha():
             counter += 1
 
-    return counter
+    return counter > factor * len(text)
 
 
 def RepeatingXOR(plaintext, key):
@@ -100,16 +107,3 @@ def RepeatingXOR(plaintext, key):
             index = 0
 
     return digest
-
-
-def StringToBinary(s):
-    return ''.join([ bin(ord(c))[2:].zfill(8) for c in s ])
-
-
-def HammingDistance(s1, s2):
-    assert len(s1) == len(s2)
-    return sum(c1 != c2 for c1, c2 in zip(s1, s2))
-
-
-def Base64ToHex(s):
-    return hexlify(b64decode(s)).decode("ascii")
