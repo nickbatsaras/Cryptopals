@@ -1,5 +1,5 @@
-from binascii import unhexlify, hexlify
-from base64   import b64encode, b64decode
+from binascii import hexlify, unhexlify
+from base64 import b64encode, b64decode
 
 
 def HexToAscii(s):
@@ -41,6 +41,27 @@ def Base64ToHex(s):
     return hexlify(b64decode(s)).decode("ascii")
 
 
+def StringToHex(s):
+    """Convert ascii string to hex string
+
+        Args:
+            s (str): Ascii string to convert
+
+        Returns:
+            Hex string
+    """
+    shex = ""
+    for c in s:
+        r = format(ord(c), 'x')
+
+        if len(r) == 1:
+            shex += '0' + r
+        else:
+            shex += r
+
+    return shex
+
+
 def HexXOR(s1, s2):
     """XOR two equal-sized hex strings
 
@@ -52,6 +73,9 @@ def HexXOR(s1, s2):
             Hex string, result of 's1 XOR s2'
     """
     xor = int(s1, 16) ^ int(s2, 16)
+
+    if len(format(xor, 'x')) == 1:
+        return '0' + format(xor, 'x')
 
     return format(xor, 'x')
 

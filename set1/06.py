@@ -4,6 +4,7 @@ from cryptopals import Base64ToHex
 from cryptopals import HexXOR
 from cryptopals import IsPlaintext
 from cryptopals import HexToAscii
+from cryptopals import StringToHex
 
 DICTIONARY  = "0123456789"
 DICTIONARY += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -11,30 +12,28 @@ DICTIONARY += "abcdefghijklmnopqrstuvwxyz"
 DICTIONARY += "~!@#$%^&*()_+-={}[]:'|<>,.?/ "
 
 HEX = ""
-THEX = ""
+KEY = ""
 
 with open("06.txt") as FILE:
     for line in FILE:
         line = line.strip()
-        HEX += Base64ToHex(line) + '\n'
+        HEX += Base64ToHex(line)
 
-HEXN = HEX.strip().replace('\n', '')
+START, END = 2, 40
 
-START = 2
-END = 40
 print("\n\tKeysize range: [%d, %d]\n" % (START, END))
 
-for KEYSIZE in range(2, 41):
+for KEYSIZE in range(START, END+1):
     # Transpose
     with open("transposed.txt", "w") as FILE:
         for i in range(0, 2*KEYSIZE, 2):
-            for j in range(i, len(HEXN)-1, 2*KEYSIZE):
-                FILE.write(HEXN[j])
-                FILE.write(HEXN[j+1])
+            for j in range(i, len(HEX)-1, 2*KEYSIZE):
+                FILE.write(HEX[j])
+                FILE.write(HEX[j+1])
             FILE.write('\n')
 
     with open("transposed.txt") as FILE:
-        key = []
+        key = ""
         for line in FILE:
             line = line.strip()
 
@@ -49,24 +48,18 @@ for KEYSIZE in range(2, 41):
                     key += c
 
         if len(key) == KEYSIZE:
-            print("\tPossible key: \"" + ''.join(key) + '\"\n')
+            print("\tPossible key: \"" + key + '\"\n')
+            KEY = key
+            break
 
-exit()
+KEYHEX = StringToHex(KEY)
 
-KEY = "Terminator X: Bring the noise"
+index = 0
+for i in range(0, len(HEX), 2):
+    c = HexToAscii(HexXOR(HEX[i]+HEX[i+1], KEYHEX[index]+KEYHEX[index+1]))
 
-KEYHEX = ""
+    print(c, end='')
 
-for c in KEY:
-    r = format(ord(c), 'x')
-    if len(r) == 1:
-        KEYHEX += '0' + r
-    else:
-        KEYHEX += r
-
-HEX = HEX.replace('\n', '')
-
-for i in range(0, len(HEX)//len(KEYHEX)):
-    print(HexToAscii(HexXOR(HEX[i*len(KEYHEX):(i+1)*len(KEYHEX)], KEYHEX)))
-
-exit()
+    index += 2
+    if index >= len(KEYHEX):
+        index = 0
