@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from cryptopals import Base64ToHex
 from Crypto.Cipher import AES
 
