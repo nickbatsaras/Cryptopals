@@ -42,7 +42,10 @@ for KEYSIZE in range(START, END+1):
                 IN2 = IN2[:len(line)]
 
                 OUT = HexXOR(line, IN2)
-                OUT = HexToAscii(OUT)
+                try:
+                    OUT = HexToAscii(OUT)
+                except:
+                    continue
 
                 if IsPlaintext(OUT, 0.85):
                     key += c

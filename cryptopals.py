@@ -11,10 +11,7 @@ def HexToAscii(s):
         Returns:
             Ascii string
     """
-    try:
-        return bytearray.fromhex(s).decode()
-    except:
-        return ""
+    return bytes.fromhex(s).decode("ascii")
 
 
 def HexToBase64(s):
@@ -50,16 +47,16 @@ def StringToHex(s):
         Returns:
             Hex string
     """
-    shex = ""
+    hexstring = ""
     for c in s:
         r = format(ord(c), 'x')
 
         if len(r) == 1:
-            shex += '0' + r
+            hexstring += '0' + r
         else:
-            shex += r
+            hexstring += r
 
-    return shex
+    return hexstring
 
 
 def HexXOR(s1, s2):

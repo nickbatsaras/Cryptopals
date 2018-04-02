@@ -19,7 +19,10 @@ for IN1 in FILE:
         IN2 = IN2[:len(IN1)]
 
         OUT = HexXOR(IN1, IN2)
-        OUT = HexToAscii(OUT)
+        try:
+            OUT = HexToAscii(OUT)
+        except:
+            continue
 
         if IsPlaintext(OUT):
             SECRET = OUT.strip()
