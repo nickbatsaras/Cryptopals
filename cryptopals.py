@@ -116,15 +116,30 @@ def RepeatingXOR(plaintext, key):
         hexchar1 = format(ord(c), 'x')
         hexchar2 = format(ord(key[index]), 'x')
 
-        xor = HexXOR(hexchar1, hexchar2)
-
-        if len(xor) == 1:
-            digest += '0' + xor
-        else:
-            digest += xor
+        digest += HexXOR(hexchar1, hexchar2)
 
         index += 1
         if index == len(key):
             index = 0
 
     return digest
+
+
+def PKCS7(text, blocksize=16):
+    """Pad text to blocksize according to PKCS#7
+
+        Args:
+            text      (str): Text to pad
+            blocksize (int): Blocksize
+
+        Returns:
+            Text padded to blocksize
+    """
+    if len(text) % blocksize == 0:
+        return text
+
+    pad = 1
+    while (len(text) + pad) % blocksize != 0:
+        pad += 1
+
+    return text + '\x04' * pad
