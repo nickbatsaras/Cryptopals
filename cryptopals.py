@@ -15,6 +15,27 @@ def HexToAscii(s):
     return bytes.fromhex(s).decode("ascii")
 
 
+def AsciiToHex(s):
+    """Convert ascii string to hex string
+
+        Args:
+            s (str): Ascii string to convert
+
+        Returns:
+            Hex string
+    """
+    hexstring = ""
+    for c in s:
+        r = format(ord(c), 'x')
+
+        if len(r) == 1:
+            hexstring += '0' + r
+        else:
+            hexstring += r
+
+    return hexstring
+
+
 def HexToBase64(s):
     """Convert hex string to base64 string
 
@@ -37,27 +58,6 @@ def Base64ToHex(s):
             Hex string
     """
     return hexlify(b64decode(s)).decode("ascii")
-
-
-def StringToHex(s):
-    """Convert ascii string to hex string
-
-        Args:
-            s (str): Ascii string to convert
-
-        Returns:
-            Hex string
-    """
-    hexstring = ""
-    for c in s:
-        r = format(ord(c), 'x')
-
-        if len(r) == 1:
-            hexstring += '0' + r
-        else:
-            hexstring += r
-
-    return hexstring
 
 
 def HexXOR(s1, s2):
@@ -163,8 +163,8 @@ def EncryptCBC(plaintext, key, blocksize, iv):
 
     plaintext = PKCS7(plaintext)
 
-    plaintext = StringToHex(plaintext)
-    iv        = StringToHex(iv)
+    plaintext = AsciiToHex(plaintext)
+    iv        = AsciiToHex(iv)
 
     xor = HexXOR(plaintext[0*blocksize:2*blocksize], iv)
     xor = unhexlify(xor)
@@ -200,7 +200,7 @@ def DecryptCBC(ciphertext, key, blocksize, iv):
     """
     cipher = AES.new(key, AES.MODE_ECB)
 
-    iv = StringToHex(iv)
+    iv = AsciiToHex(iv)
 
     cipherblock = unhexlify(ciphertext[0*blocksize:2*blocksize])
 

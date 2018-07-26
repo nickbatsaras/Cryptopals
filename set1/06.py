@@ -4,7 +4,7 @@ from cryptopals import Base64ToHex
 from cryptopals import HexXOR
 from cryptopals import IsPlaintext
 from cryptopals import HexToAscii
-from cryptopals import StringToHex
+from cryptopals import AsciiToHex
 
 DICTIONARY  = "0123456789"
 DICTIONARY += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -55,7 +55,7 @@ for KEYSIZE in range(START, END+1):
             KEY = key
             break
 
-KEYHEX = StringToHex(KEY)
+KEYHEX = AsciiToHex(KEY)
 
 index = 0
 for i in range(0, len(HEX), 2):
