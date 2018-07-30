@@ -1,9 +1,8 @@
-import string
-import random
+import string, random
 from Crypto.Cipher import AES
-from cryptopals import AsciiToHex
-from cryptopals import PKCS7
-from cryptopals import EncryptCBC
+from cryptopals    import AsciiToHex
+from cryptopals    import PKCS7
+from cryptopals    import EncryptCBC
 
 def RandomBytes(length):
     dictionary = string.ascii_letters + string.punctuation + string.digits
@@ -14,11 +13,7 @@ def RandomBytes(length):
 def encryption_oracle(plaintext):
     length = random.randint(5, 10)
     rbytes = RandomBytes(length)
-    plaintext = rbytes.decode() + plaintext
-
-    length = random.randint(5, 10)
-    rbytes = RandomBytes(length)
-    plaintext += rbytes.decode()
+    plaintext = rbytes.decode() + plaintext + rbytes.decode()
 
     key = RandomBytes(16)
 
