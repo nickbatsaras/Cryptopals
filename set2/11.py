@@ -23,17 +23,25 @@ def encryption_oracle(plaintext):
     key = RandomBytes(16)
 
     if random.randint(0, 1) == 0:
-        # ECB encrypt
+        print("Real: ECB")
         cipher = AES.new(key, AES.MODE_ECB)
         plaintext = PKCS7(plaintext)
         ciphertext = cipher.encrypt(bytes.fromhex(AsciiToHex(plaintext)))
         ciphertext = ciphertext.hex()
     else:
-        # CBC encrypt
+        print("Real: CBC")
         dictionary = string.digits + 'ABCDEF'
         iv = "".join(random.SystemRandom().choice(dictionary) for x in range(16*2))
         ciphertext = EncryptCBC(plaintext, key, 16, iv)
 
     return ciphertext
 
-print(encryption_oracle("nikos"))
+def detection_oracle(ciphertext):
+        for start in range(0, len(ciphertext)-16, 16):
+            pattern = ciphertext[start:start+16]
+            if ciphertext.count(pattern) > 1:
+                print("Guess: ECB Mode")
+                return
+        print("Guess: CBC Mode")
+
+detection_oracle(encryption_oracle('0'*48))
