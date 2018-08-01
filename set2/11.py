@@ -41,10 +41,42 @@ def detection_oracle(ciphertext, blocksize=16):
             return 'ECB'
     return 'CBC'
 
+##
+#
+# The rationale behind the 43-byte input text
+# -------------------------------------------
+#
+# * We need 32 bytes, untouched, to get a repetition with blocksize 16
+#
+# Some bytes will be prepended & appended
+# * The total number of bytes for the input text, will be 64, after PKCS7
+#   padding
+# * The prepended bytes will be from the random bytes of the oracle function
+# * The appended bytes will be from the random bytes of the oracle function and
+#   from the padding
+#
+#                       +--------------------------------------+
+#     input text bytes: |    16     |      32      |    16     |
+#                       +--------------------------------------+
+#                             ^                          ^
+#                      random & input text        random & pad
+#
+# * The worst case for the prepended bytes, is to add 5 random bytes. This
+#   results in "stealing" 11 bytes from our input text. This means we need at
+#   least 32+11=43 bytes of input text
+# * We don't really care about the appended bytes. Some will be random and
+#   some will be the result of padding. We hit a repetition no matter what
+#
+##
 
-CIPHERTEXT, MODE = encryption_oracle('0'*48)
+FAILS      = 0
+ITERATIONS = 10000
 
-if detection_oracle(CIPHERTEXT) == MODE:
-    print("PASS")
-else:
-    print("FAIL")
+for i in range(ITERATIONS):
+    ciphertext, mode = encryption_oracle('0'*43)
+
+    if detection_oracle(ciphertext) != mode:
+        FAILS += 1
+
+print("Iterations:\t%d\nPasses:\t\t%d\nFails:\t\t%d" 
+        % (ITERATIONS, ITERATIONS-FAILS, FAILS))
