@@ -178,6 +178,9 @@ def EncryptCBC(plaintext, key, blocksize, iv):
         xor = HexXOR(plaintext[index:index+2*blocksize], cipherblock)
         xor = unhexlify(xor)
 
+        while len(xor) % 16 != 0:
+            xor = b'\x00' + xor
+
         cipherblock = cipher.encrypt(xor)
         cipherblock = hexlify(cipherblock).decode("ascii")
 
