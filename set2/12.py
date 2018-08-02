@@ -40,7 +40,22 @@ def detect_blocksize():
         currcipher = encryption_oracle('A'*blocksizes[i+1], KEY)
 
         if currcipher.count(prevcipher[0:blocksizes[i]]) == 1:
-            print("Detected blocksize: %d bytes" % blocksizes[i])
             return blocksizes[i]
 
+##
+# Step 2
+##
+def detect_ECB(ciphertext, blocksize=16):
+    if ciphertext[0:2*blocksize] == ciphertext[2*blocksize:4*blocksize]:
+        return True
+    return False
+
+
 KEY = RandomBytes(16)
+
+BLOCKSIZE = detect_blocksize()
+CIPHERTEXT = encryption_oracle('A' * 2 * BLOCKSIZE, KEY)
+
+print("Detected blocksize:\t%d bytes" % BLOCKSIZE)
+if detect_ECB(CIPHERTEXT, BLOCKSIZE) == True:
+    print("Detected ECB:\t\tTrue")
