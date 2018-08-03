@@ -11,60 +11,65 @@ def RandomBytes(length):
 
     return str.encode(key)
 
-def encryption_oracle(plaintext, postfix):
+def encryption_oracle(key, plaintext, postfix):
     plaintext += postfix
 
     plaintext = PKCS7(plaintext)
 
-    cipher = AES.new(KEY, AES.MODE_ECB)
+    cipher = AES.new(key, AES.MODE_ECB)
     ciphertext = cipher.encrypt(bytes.fromhex(AsciiToHex(plaintext)))
     ciphertext = ciphertext.hex()
 
     return ciphertext
 
-def detect_blocksize():
+def detect_blocksize(key, postfix):
     blocksizes = [16, 24, 32, 64]
 
     for i in range(len(blocksizes)-1):
-        prevcipher = encryption_oracle('A'*blocksizes[i],   POSTFIX)
-        currcipher = encryption_oracle('A'*blocksizes[i+1], POSTFIX)
+        prevcipher = encryption_oracle(key, 'A'*blocksizes[i],   postfix)
+        currcipher = encryption_oracle(key, 'A'*blocksizes[i+1], postfix)
 
         if currcipher.count(prevcipher[0:blocksizes[i]]) == 1:
             return blocksizes[i]
 
-def detect_ECB(ciphertext, blocksize=16):
+def detect_ECB(ciphertext, blocksize):
     if ciphertext[0:2*blocksize] == ciphertext[2*blocksize:4*blocksize]:
         return True
     return False
 
+def ByteAtATimeSimple(key, base64postfix):
+    hexpostfix = Base64ToHex(base64postfix)
+    postfix = HexToAscii(hexpostfix)
 
-KEY = RandomBytes(16)
+    blocksize = detect_blocksize(key, postfix)
+    ciphertext = encryption_oracle(key, 'a' * 2 * blocksize, postfix)
+
+    assert(detect_ECB(ciphertext, blocksize))
+
+    inputtext = 'A' * (blocksize-1)
+    dictionary = {}
+
+    plaintext = ""
+
+    for i in string.ascii_letters + string.punctuation + string.digits + string.whitespace:
+        dictionary[encryption_oracle(key, inputtext+i, postfix)[0:blocksize]] = inputtext+i
+
+    for i in range(len(postfix)):
+        block = dictionary[encryption_oracle(key, inputtext, postfix[i:])[0:blocksize]]
+        plaintext += block[len(block)-1]
+
+    assert(plaintext == postfix)
+
+    return plaintext
+
 
 BASE64POSTFIX = """Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg
 aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq
 dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg
 YnkK"""
-HEXPOSTFIX = Base64ToHex(BASE64POSTFIX)
-POSTFIX = HexToAscii(HEXPOSTFIX)
 
-BLOCKSIZE = detect_blocksize()
+KEY = RandomBytes(16)
 
-CIPHERTEXT = encryption_oracle('a' * 2 * BLOCKSIZE, POSTFIX)
+PLAINTEXT = ByteAtATimeSimple(KEY, BASE64POSTFIX)
 
-print("Detected blocksize:\t%d bytes" % BLOCKSIZE)
-if detect_ECB(CIPHERTEXT, BLOCKSIZE) == True:
-    print("Detected ECB:\t\tTrue")
-
-BLOCK = 'A' * (BLOCKSIZE-1)
-DICTIONARY = {}
-
-PLAINTEXT = ""
-
-for i in string.ascii_letters + string.punctuation + string.digits + string.whitespace:
-    DICTIONARY[encryption_oracle(BLOCK+i, POSTFIX)[0:BLOCKSIZE]] = BLOCK+i
-
-for i in range(len(POSTFIX)):
-    block = DICTIONARY[encryption_oracle(BLOCK, POSTFIX[i:])[0:BLOCKSIZE]]
-    PLAINTEXT += block[len(block)-1]
-
-print("\nUnknown String:\n\n" + PLAINTEXT)
+print(PLAINTEXT)
