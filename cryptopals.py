@@ -140,11 +140,7 @@ def PKCS7(text, blocksize=16):
     if len(text) % blocksize == 0:
         return text
 
-    pad = 1
-    while (len(text) + pad) % blocksize != 0:
-        pad += 1
-
-    return text + '\x04' * pad
+    return text + (blocksize - len(text) % blocksize) * '\x04'
 
 
 def EncryptCBC(plaintext, key, blocksize, iv):
