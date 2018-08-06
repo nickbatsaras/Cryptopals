@@ -3,11 +3,12 @@ from Crypto.Cipher import AES
 from cryptopals    import PKCS7
 
 def KVparse(string):
-    kv = {}
+    kv = "{\n"
     string = string.split('&')
     for s in string:
         s = s.split('=')
-        kv[s[0]] = s[1]
+        kv += "\t" + s[0] + ": " + s[1] + "\n"
+    kv += "}"
     return kv
 
 def profile_for(email):
@@ -17,7 +18,7 @@ def profile_for(email):
 KEY = os.urandom(16)
 CIPHER = AES.new(KEY, AES.MODE_ECB)
 
-EMAIL = "batsaras@csd.uoc.gr"
+EMAIL = "foo@bar.com"
 
 PLAINUSER  = profile_for(EMAIL)
 PLAINUSER  = PKCS7(PLAINUSER)
@@ -27,9 +28,16 @@ PLAINADMIN  = profile_for(EMAIL).replace("user", "admin")
 PLAINADMIN  = PKCS7(PLAINADMIN)
 CIPHERADMIN = CIPHER.encrypt(PLAINADMIN)
 
-print("Before cut-and-paste: " + CIPHER.decrypt(CIPHERUSER).decode('ascii'))
+PLAINUSER = CIPHER.decrypt(CIPHERUSER).decode('ascii')
+print("Before cut-and-paste: " + PLAINUSER)
+print(KVparse(PLAINUSER))
 
-CIPHERUSER = CIPHERUSER.replace(CIPHERUSER[len(CIPHERUSER)-16:],
-        CIPHERADMIN[len(CIPHERADMIN)-16:])
+for i in range(len(CIPHERUSER)):
+    if CIPHERUSER[i] != CIPHERADMIN[i]:
+        break
 
-print("After  cut-and-paste: " + CIPHER.decrypt(CIPHERUSER).decode('ascii'))
+CIPHERUSER = CIPHERUSER.replace(CIPHERUSER[i:], CIPHERADMIN[i:])
+
+PLAINUSER = CIPHER.decrypt(CIPHERUSER).decode('ascii')
+print("After cut-and-paste: " + PLAINUSER)
+print(KVparse(PLAINUSER))
