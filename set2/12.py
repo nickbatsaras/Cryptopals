@@ -1,6 +1,5 @@
 import string, random
 from Crypto.Cipher import AES
-from cryptopals    import AsciiToHex
 from cryptopals    import Base64ToHex
 from cryptopals    import HexToAscii
 from cryptopals    import PKCS7
@@ -17,7 +16,7 @@ def encryption_oracle(key, plaintext, postfix):
     plaintext = PKCS7(plaintext)
 
     cipher = AES.new(key, AES.MODE_ECB)
-    ciphertext = cipher.encrypt(bytes.fromhex(AsciiToHex(plaintext)))
+    ciphertext = cipher.encrypt(plaintext)
     ciphertext = ciphertext.hex()
 
     return ciphertext

@@ -1,6 +1,5 @@
 import string, random
 from Crypto.Cipher import AES
-from cryptopals    import AsciiToHex
 from cryptopals    import PKCS7
 from cryptopals    import EncryptCBC
 
@@ -25,7 +24,7 @@ def encryption_oracle(plaintext, blocksize=16):
     if mode == 'ECB':
         plaintext = PKCS7(plaintext)
         cipher = AES.new(key, AES.MODE_ECB)
-        ciphertext = cipher.encrypt(bytes.fromhex(AsciiToHex(plaintext)))
+        ciphertext = cipher.encrypt(plaintext)
         ciphertext = ciphertext.hex()
     else:
         dictionary = string.digits + 'ABCDEF'
