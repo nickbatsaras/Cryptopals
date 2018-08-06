@@ -1,14 +1,8 @@
-import string, random
+import os, string
 from Crypto.Cipher import AES
 from cryptopals    import Base64ToHex
 from cryptopals    import HexToAscii
 from cryptopals    import PKCS7
-
-def RandomBytes(length):
-    dictionary = string.ascii_letters + string.punctuation + string.digits
-    key = "".join(random.SystemRandom().choice(dictionary) for x in range(length))
-
-    return str.encode(key)
 
 def encryption_oracle(key, plaintext, postfix):
     plaintext += postfix
@@ -67,7 +61,7 @@ aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq
 dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg
 YnkK"""
 
-KEY = RandomBytes(16)
+KEY = os.urandom(16)
 
 PLAINTEXT = ByteAtATimeSimple(KEY, BASE64POSTFIX)
 

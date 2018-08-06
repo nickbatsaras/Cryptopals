@@ -5,7 +5,7 @@ from cryptopals    import EncryptCBC
 
 def RandomBytes(length):
     dictionary = string.ascii_letters + string.punctuation + string.digits
-    key = "".join(random.SystemRandom().choice(dictionary) for x in range(length))
+    key = "".join(random.choice(dictionary) for x in range(length))
 
     return str.encode(key)
 

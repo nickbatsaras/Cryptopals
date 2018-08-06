@@ -1,12 +1,6 @@
-import string, random
+import os
 from Crypto.Cipher import AES
 from cryptopals    import PKCS7
-
-def RandomBytes(length):
-    dictionary = string.ascii_letters + string.punctuation + string.digits
-    key = "".join(random.SystemRandom().choice(dictionary) for x in range(length))
-
-    return str.encode(key)
 
 def KVparse(string):
     kv = {}
@@ -20,7 +14,7 @@ def profile_for(email):
     return "email="+email+"&uid=10&role=user"
 
 
-KEY = RandomBytes(16)
+KEY = os.urandom(16)
 CIPHER = AES.new(KEY, AES.MODE_ECB)
 
 EMAIL = "batsaras@csd.uoc.gr"
