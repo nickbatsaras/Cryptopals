@@ -33,7 +33,9 @@ PLAINADMIN  = profile_for(EMAIL).replace("user", "admin")
 PLAINADMIN  = PKCS7(PLAINADMIN)
 CIPHERADMIN = CIPHER.encrypt(PLAINADMIN)
 
+print("Before cut-and-paste: " + CIPHER.decrypt(CIPHERUSER).decode('ascii'))
+
 CIPHERUSER = CIPHERUSER.replace(CIPHERUSER[len(CIPHERUSER)-16:],
         CIPHERADMIN[len(CIPHERADMIN)-16:])
 
-print(CIPHER.decrypt(CIPHERUSER).decode('ascii'))
+print("After  cut-and-paste: " + CIPHER.decrypt(CIPHERUSER).decode('ascii'))
