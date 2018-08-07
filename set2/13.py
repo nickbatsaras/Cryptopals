@@ -1,6 +1,6 @@
-import os
 from Crypto.Cipher import AES
 from cryptopals    import PKCS7
+from os            import urandom
 
 def KVparse(string):
     kv = "{\n"
@@ -15,7 +15,7 @@ def profile_for(email):
     return "email="+email+"&uid=10&role=user"
 
 
-KEY = os.urandom(16)
+KEY = urandom(16)
 CIPHER = AES.new(KEY, AES.MODE_ECB)
 
 EMAIL = "foo@bar.com"

@@ -1,25 +1,21 @@
-import string, random
 from Crypto.Cipher import AES
 from cryptopals    import PKCS7
 from cryptopals    import EncryptCBC
-
-def RandomBytes(length):
-    dictionary = string.ascii_letters + string.punctuation + string.digits
-    key = "".join(random.choice(dictionary) for x in range(length))
-
-    return str.encode(key)
+from cryptopals    import RandomString
+from random        import randint, choice
+from string        import digits
 
 def encryption_oracle(plaintext, blocksize=16):
     modes = ['ECB', 'CBC']
 
-    key = RandomBytes(blocksize)
+    key = RandomString(blocksize)
 
-    fbytes = RandomBytes(random.randint(5, 10))
-    bbytes = RandomBytes(random.randint(5, 10))
+    prefix  = RandomString(randint(5, 10))
+    postfix = RandomString(randint(5, 10))
 
-    plaintext = fbytes.decode() + plaintext + bbytes.decode()
+    plaintext = prefix + plaintext + postfix
 
-    mode = random.choice(modes)
+    mode = choice(modes)
 
     if mode == 'ECB':
         plaintext = PKCS7(plaintext)
@@ -27,8 +23,8 @@ def encryption_oracle(plaintext, blocksize=16):
         ciphertext = cipher.encrypt(plaintext)
         ciphertext = ciphertext.hex()
     else:
-        dictionary = string.digits + 'ABCDEF'
-        iv = "".join(random.SystemRandom().choice(dictionary) for x in range(blocksize*2))
+        dictionary = digits + 'ABCDEF'
+        iv = "".join(choice(dictionary) for x in range(blocksize*2))
         ciphertext = EncryptCBC(plaintext, key, blocksize, iv)
 
     return ciphertext, mode

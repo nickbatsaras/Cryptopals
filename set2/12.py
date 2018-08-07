@@ -1,8 +1,9 @@
-import os, string
 from Crypto.Cipher import AES
-from cryptopals    import Base64ToHex
-from cryptopals    import HexToAscii
 from cryptopals    import PKCS7
+from cryptopals    import HexToAscii
+from cryptopals    import Base64ToHex
+from os            import urandom
+from string        import ascii_letters, punctuation, digits, whitespace
 
 def encryption_oracle(key, plaintext, postfix):
     plaintext += postfix
@@ -11,7 +12,6 @@ def encryption_oracle(key, plaintext, postfix):
 
     cipher = AES.new(key, AES.MODE_ECB)
     ciphertext = cipher.encrypt(plaintext)
-    ciphertext = ciphertext.hex()
 
     return ciphertext
 
@@ -26,7 +26,7 @@ def detect_blocksize(key, postfix):
             return blocksizes[i]
 
 def detect_ECB(ciphertext, blocksize):
-    if ciphertext[0:2*blocksize] == ciphertext[2*blocksize:4*blocksize]:
+    if ciphertext[0:blocksize] == ciphertext[blocksize:2*blocksize]:
         return True
     return False
 
@@ -40,13 +40,12 @@ def ByteAtATimeSimple(key, base64postfix):
     assert(detect_ECB(ciphertext, blocksize))
 
     inputtext = 'A' * (blocksize-1)
+
     dictionary = {}
-
-    plaintext = ""
-
-    for i in string.ascii_letters + string.punctuation + string.digits + string.whitespace:
+    for i in ascii_letters + punctuation + digits + whitespace:
         dictionary[encryption_oracle(key, inputtext+i, postfix)[0:blocksize]] = inputtext+i
 
+    plaintext = ""
     for i in range(len(postfix)):
         block = dictionary[encryption_oracle(key, inputtext, postfix[i:])[0:blocksize]]
         plaintext += block[len(block)-1]
@@ -61,7 +60,7 @@ aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq
 dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg
 YnkK"""
 
-KEY = os.urandom(16)
+KEY = urandom(16)
 
 PLAINTEXT = ByteAtATimeSimple(KEY, BASE64POSTFIX)
 

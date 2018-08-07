@@ -1,6 +1,8 @@
-from binascii import hexlify, unhexlify
-from base64 import b64encode, b64decode
 from Crypto.Cipher import AES
+from random        import choice
+from binascii      import hexlify, unhexlify
+from base64        import b64encode, b64decode
+from string        import ascii_letters, punctuation, digits, whitespace
 
 
 def HexToAscii(s):
@@ -221,3 +223,18 @@ def DecryptCBC(ciphertext, key, blocksize, iv):
         plaintext += HexToAscii(xor)
 
     return plaintext.replace('\x04', '')
+
+
+def RandomString(length):
+    """Return a random string of size 'length'
+
+        Args:
+            length (int): The number of characters
+
+        Returns:
+            Ascii string
+    """
+    dictionary = ascii_letters + punctuation + digits + whitespace
+    randstr = "".join(choice(dictionary) for x in range(length))
+
+    return randstr
