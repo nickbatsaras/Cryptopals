@@ -17,18 +17,39 @@ def encryption_oracle(key, plaintext, postfix):
 
     return ciphertext
 
-def ByteAtATimeHarder(key, base64postfix):
-    hexpostfix = Base64ToHex(base64postfix)
-    postfix = HexToAscii(hexpostfix)
-
-    blocksize = 16
-
+##
+#
+# This function answers 2 questions:
+#
+#   1) Which is the index of the first block containing no prefix bytes
+#   2) How many bytes from input-text overflow blocksize
+#
+# We end up having the following scheme (in most cases):
+#
+#                 +------------------------------------------------+
+#     input text: | prefix & input | input | input & postfix & pad |
+#                 +------------------------------------------------+
+#                                  ^           ^
+#                             block_start   overflown
+#                                            input
+#
+# The goal is to remove the overflown input bytes and know the position of the
+# last block containing no prefix bytes:
+#
+#                 +----------------------------------------+
+#     input text: | prefix & input | input | postfix & pad |
+#                 +----------------------------------------+
+#                                  ^
+#                             block_start
+#
+#
+##
+def InputConfig(key, blocksize, postfix):
     flag = True
     extra_bytes = 0
     block_start = 1024
     while flag:
         inputtext = 'A' * (3 * blocksize - extra_bytes)
-
         ciphertext = encryption_oracle(key, inputtext, postfix)
 
         for index in range(0, len(ciphertext)-blocksize, blocksize):
@@ -42,18 +63,27 @@ def ByteAtATimeHarder(key, base64postfix):
 
         extra_bytes += 1
 
+    return block_start, extra_bytes - 1
+
+
+def ByteAtATimeHarder(key, base64postfix):
+    hexpostfix = Base64ToHex(base64postfix)
+    postfix = HexToAscii(hexpostfix)
+
+    blocksize = 16
+
+    block_start, extra_bytes = InputConfig(key, blocksize, postfix)
+
     dictionary = {}
-    inputtext = 'A' * (3 * blocksize - extra_bytes + 1)
+    inputtext = 'A' * (3 * blocksize - extra_bytes)
     for i in ascii_letters + punctuation + digits + whitespace:
-        start = block_start+blocksize
-        end = block_start+2*blocksize
-        dictionary[encryption_oracle(key, inputtext+i, postfix)[start:end]] = inputtext+i
+        dictionary[encryption_oracle(key, inputtext+i, postfix)\
+                [block_start+blocksize:block_start+2*blocksize]] = inputtext+i
 
     plaintext = ""
     for i in range(len(postfix)):
-        start = block_start+blocksize
-        end = block_start+2*blocksize
-        block = dictionary[encryption_oracle(key, inputtext, postfix[i:])[start:end]]
+        block = dictionary[encryption_oracle(key, inputtext, postfix[i:])\
+                [block_start+blocksize:block_start+2*blocksize]]
         plaintext += block[len(block)-1]
 
     assert(plaintext == postfix)
