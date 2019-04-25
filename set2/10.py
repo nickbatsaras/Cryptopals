@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from cryptopals import EncryptCBC
 from cryptopals import DecryptCBC

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from string     import printable
 from cryptopals import PKCS7
 

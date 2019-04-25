@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from cryptopals import Base64ToHex
 from Crypto.Cipher import AES

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from Crypto.Cipher import AES
 from cryptopals    import PKCS7
 from cryptopals    import HexToAscii
