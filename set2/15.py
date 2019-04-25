@@ -4,6 +4,9 @@ from string     import printable
 from cryptopals import PKCS7
 
 def PKCS7Validate(plaintext):
+    if len(plaintext) % 8 != 0:
+        raise Exception("Invalid PKCS7 padding")
+
     plaintext = list(plaintext)
     for i in range(len(plaintext)):
         if plaintext[i] not in printable:

@@ -14,6 +14,7 @@ def KVparse(string):
     return kv
 
 def profile_for(email):
+    # TODO: Manage meta characters !
     return "email="+email+"&uid=10&role=user"
 
 
