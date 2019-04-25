@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
 
-from string     import printable
-from cryptopals import PKCS7
-
-def PKCS7Validate(plaintext):
-    if len(plaintext) % 8 != 0:
-        raise Exception("Invalid PKCS7 padding")
-
-    plaintext = list(plaintext)
-    for i in range(len(plaintext)):
-        if plaintext[i] not in printable:
-            if plaintext[i] == '\x04':
-                plaintext[i] = ""
-            else:
-                raise Exception("Invalid PKCS7 padding")
-    return "".join(plaintext)
-
+from cryptopals import PKCS7Validate
 
 IN1 = "ICE ICE BABY\x04\x04\x04\x04"
 IN2 = "ICE ICE BABY\x05\x05\x05\x05"

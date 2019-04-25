@@ -1,30 +1,30 @@
 from Crypto.Cipher import AES
-from random        import choice
-from binascii      import hexlify, unhexlify
-from base64        import b64encode, b64decode
-from string        import ascii_letters, punctuation, digits, whitespace
+from random    import choice
+from binascii  import hexlify, unhexlify
+from base64    import b64encode, b64decode
+from string    import ascii_letters, punctuation, digits, whitespace, printable
 
 
 def HexToAscii(s):
-    """Convert hex string to ascii string
+    """Convert hex string to ascii string.
 
         Args:
-            s (str): Hex string to convert
+            s (str): Hex string to convert.
 
         Returns:
-            Ascii string
+            Ascii string.
     """
     return bytes.fromhex(s).decode("ascii")
 
 
 def AsciiToHex(s):
-    """Convert ascii string to hex string
+    """Convert ascii string to hex string.
 
         Args:
-            s (str): Ascii string to convert
+            s (str): Ascii string to convert.
 
         Returns:
-            Hex string
+            Hex string.
     """
     hexstring = ""
     for c in s:
@@ -39,38 +39,38 @@ def AsciiToHex(s):
 
 
 def HexToBase64(s):
-    """Convert hex string to base64 string
+    """Convert hex string to base64 string.
 
         Args:
-            s (str): Hex string to convert
+            s (str): Hex string to convert.
 
         Returns:
-            Base64 string
+            Base64 string.
     """
     return b64encode(unhexlify(s)).decode("ascii")
 
 
 def Base64ToHex(s):
-    """Convert base64 string to hex string
+    """Convert base64 string to hex string.
 
         Args:
-            s (str): Base64 string to convert
+            s (str): Base64 string to convert.
 
         Returns:
-            Hex string
+            Hex string.
     """
     return hexlify(b64decode(s)).decode("ascii")
 
 
 def HexXOR(s1, s2):
-    """XOR two equal-sized hex strings
+    """XOR two equal-sized hex strings.
 
         Args:
-            s1 (str): Hex string
-            s2 (str): Hex string
+            s1 (str): Hex string.
+            s2 (str): Hex string.
 
         Returns:
-            Hex string, result of 's1 XOR s2'
+            Hex string, result of 's1 XOR s2'.
     """
     xor = int(s1, 16) ^ int(s2, 16)
     xor = format(xor, 'x')
@@ -82,16 +82,16 @@ def HexXOR(s1, s2):
 
 
 def IsPlaintext(text, factor=0.95):
-    """Check if text contains 'mostly' alpharithmetics
+    """Check if text contains 'mostly' alpharithmetics.
 
         Args:
-            text (str):     Ascii string to check
+            text (str):     Ascii string to check.
             factor (float): Percentage of alphas in text in order qualify
-                            as plaintext
+                            as plaintext.
 
         Returns:
             true, if number of alphas is above given percentage
-            false, otherwise
+            false, otherwise.
     """
     text = text.strip().replace(' ', '')
 
@@ -104,15 +104,15 @@ def IsPlaintext(text, factor=0.95):
 
 
 def RepeatingXOR(plaintext, key):
-    """XOR each byte of plaintext with a single byte of key
-        When XOR'd with the last byte of key, reset key index
+    """XOR each byte of plaintext with a single byte of key.
+        When XOR'd with the last byte of key, reset key index.
 
         Args:
-            plaintext (str): Text to encrypt
-            key (str):       Key used for encryption
+            plaintext (str): Text to encrypt.
+            key (str):       Key used for encryption.
 
         Returns:
-            Hex string, ciphertext
+            Hex string, ciphertext.
     """
     index = 0
     ciphertext = ""
@@ -130,14 +130,14 @@ def RepeatingXOR(plaintext, key):
 
 
 def PKCS7(text, blocksize=16):
-    """Pad text to blocksize according to PKCS#7
+    """Pad text to blocksize according to PKCS#7.
 
         Args:
-            text (str):      Text to pad
-            blocksize (int): Blocksize
+            text (str):      Text to pad.
+            blocksize (int): Blocksize.
 
         Returns:
-            Text padded to blocksize
+            Text padded to blocksize.
     """
     if len(text) % blocksize == 0:
         return text
@@ -145,17 +145,42 @@ def PKCS7(text, blocksize=16):
     return text + (blocksize - len(text) % blocksize) * '\x04'
 
 
-def EncryptCBC(plaintext, key, blocksize, iv):
-    """Encrypt plaintext using AES in CBC mode
+def PKCS7Validate(plaintext):
+    """Validate PKCS#7 padding.
+    Check both if length is a multiple of 8 and if padding consists of the
+    character \x04.
 
         Args:
-            plaintext (str): Text to encrypt
-            key (binary):    Key used in encyption
-            blocksize (int): Size of blocks
-            iv (hex str):    Initialization vector
+            plaintext (str): Text to validate.
 
         Returns:
-            Ciphertext
+            Plaintext without the padding or an exception if padding is
+            invalid.
+    """
+    if len(plaintext) % 8 != 0:
+        raise Exception("Invalid PKCS7 padding")
+
+    plaintext = list(plaintext)
+    for i in range(len(plaintext)):
+        if plaintext[i] not in printable:
+            if plaintext[i] == '\x04':
+                plaintext[i] = ""
+            else:
+                raise Exception("Invalid PKCS7 padding")
+    return "".join(plaintext)
+
+
+def EncryptCBC(plaintext, key, blocksize, iv):
+    """Encrypt plaintext using AES in CBC mode.
+
+        Args:
+            plaintext (str): Text to encrypt.
+            key (binary):    Key used in encyption.
+            blocksize (int): Size of blocks.
+            iv (hex str):    Initialization vector.
+
+        Returns:
+            Ciphertext.
     """
     cipher = AES.new(key, AES.MODE_ECB)
 
@@ -188,16 +213,16 @@ def EncryptCBC(plaintext, key, blocksize, iv):
 
 
 def DecryptCBC(ciphertext, key, blocksize, iv):
-    """Decrypt plaintext using AES in CBC mode
+    """Decrypt plaintext using AES in CBC mode.
 
         Args:
-            plaintext (str): Text to decrypt
-            key (binary):    Key used in decyption
-            blocksize (int): Size of blocks
-            iv (hex str):    Initialization vector
+            plaintext (str): Text to decrypt.
+            key (binary):    Key used in decyption.
+            blocksize (int): Size of blocks.
+            iv (hex str):    Initialization vector.
 
         Returns:
-            Plaintext
+            Plaintext.
     """
     cipher = AES.new(key, AES.MODE_ECB)
 
@@ -226,13 +251,13 @@ def DecryptCBC(ciphertext, key, blocksize, iv):
 
 
 def RandomString(length):
-    """Return a random string of size 'length'
+    """Return a random string of size 'length'.
 
         Args:
-            length (int): The number of characters
+            length (int): The number of characters.
 
         Returns:
-            Ascii string
+            Ascii string.
     """
     dictionary = ascii_letters + punctuation + digits + whitespace
     randstr = "".join(choice(dictionary) for x in range(length))
